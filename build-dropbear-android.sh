@@ -1,86 +1,55 @@
 #!/bin/bash
-
 set -e
+set -x
+VERSION=2018.76
 
-if [ -z ${TOOLCHAIN} ]; then echo "TOOLCHAIN must be set. See README.md for more information."; exit -1; fi
-
-# Setup the environment
-export TARGET=../target
-# Specify binaries to build. Options: dropbear dropbearkey scp dbclient
-export PROGRAMS="dropbear dropbearkey"
-# Which version of Dropbear to download for patching
-export VERSION=2018.76
-
+PREFIX=/tmp/dropbear-android
+HOST=arm-linux-androideabi
+export TOOLCHAIN="$TOOLCHAIN"
+export PATH="$TOOLCHAIN/bin:$PATH"
+# Android bionic libc static stderr fix
+EXTRA_CFLAGS="-Dstderr=__stderrp -Dstdout=__stdoutp -Dstdin=__stdinp"
+echo "=== Download dropbear source ==="
 # Download the latest version of dropbear SSH
 if [ ! -f ./dropbear-$VERSION.tar.bz2 ]; then
     wget -O ./dropbear-$VERSION.tar.bz2 https://matt.ucc.asn.au/dropbear/releases/dropbear-$VERSION.tar.bz2
 fi
+echo "=== Extract source ==="
+tar -xjf dropbear-${VERSION}.tar.bz2
+echo "=== Apply patch ==="
+cd dropbear-${VERSION}
+patch -p1 -N --no-backup < ../android-compat.patch
 
-# Start each build with a fresh source copy
-rm -rf ./dropbear-$VERSION
-tar xjf dropbear-$VERSION.tar.bz2
+# ==========新增这两行：直接修改sysoptions.h，开启sftp子系统并写死路径==========
+sed -i 's/#define DROPBEAR_SFTPSERVER 0/#define DROPBEAR_SFTPSERVER 1/' sysoptions.h
+sed -i 's|#define SFTPSERVER_PATH.*|#define SFTPSERVER_PATH "/system/xbin/sftp-server"|' sysoptions.h
 
-# Change to dropbear directory
-cd dropbear-$VERSION
-
-### START -- configure without modifications first to generate files 
-#########################################################################################################################
-echo "Generating required files..."
-
-HOST=arm-linux-androideabi
-COMPILER=${TOOLCHAIN}/bin/arm-linux-androideabi-gcc
-STRIP=${TOOLCHAIN}/bin/arm-linux-androideabi-strip
-SYSROOT=${TOOLCHAIN}/sysroot
-
-export CC="$COMPILER --sysroot=$SYSROOT"
-
-# Android 5.0 Lollipop and greater require PIE. Default to this unless otherwise specified.
-if [ -z $DISABLE_PIE ]; then export CFLAGS="-g -O2 -pie -fPIE"; else echo "Disabling PIE compilation..."; fi
-sleep 5
-# Use the default platform target for pie binaries 
-unset GOOGLE_PLATFORM
-
-# Apply the new config.guess and config.sub now so they're not patched
-cp ../config.guess ../config.sub .
-    
-./configure --host=$HOST --disable-utmp --disable-wtmp --disable-utmpx --disable-zlib --disable-syslog --with-sftp-server=/system/xbin/sftp-server > /dev/null 2>&1
-
-echo "Done generating files"
-sleep 2
-echo
-echo
-#########################################################################################################################
-### END -- configure without modifications first to generate files 
-
-# Begin applying changes to make Android compatible
-# Apply the compatibility patch
-patch -p1 < ../android-compat.patch
 cd -
-
-echo "Compiling for ARM"  
-
-cd dropbear-$VERSION
-    
-./configure --host=$HOST --disable-utmp --disable-wtmp --disable-utmpx --disable-zlib --disable-syslog --with-sftp-server=/system/xbin/sftp-server
-
-make PROGRAMS="$PROGRAMS"
-MAKE_SUCCESS=$?
-if [ $MAKE_SUCCESS -eq 0 ]; then
-	clear
-	sleep 1
-  	# Create the output directory
-	mkdir -p $TARGET/arm;
-	for PROGRAM in $PROGRAMS; do
-
-		if [ ! -f $PROGRAM ]; then
-    		echo "${PROGRAM} not found!"
-		fi
-
-		$STRIP "./${PROGRAM}"
-	done
-
-	cp $PROGRAMS $TARGET/arm
-	echo "Compilation successful. Output files are located in: ${TARGET}/arm"
-else
- 	echo "Compilation failed."
-fi
+echo "=== Run configure ==="
+cd dropbear-${VERSION}
+./configure \
+  --host=${HOST} \
+  --prefix=${PREFIX} \
+  --disable-zlib \
+  --enable-static \
+  --disable-shadow \
+  --disable-utmp \
+  --disable-pty \
+  --disable-syslog \
+  --disable-lastlog \
+  # 删掉 --enable-sftp-server ！！老版本不需要，上面sed已经开启宏
+  CFLAGS="${EXTRA_CFLAGS} -Os"
+echo "=== make clean 清除旧编译产物，避免残留dbclient目标文件 ==="
+make clean
+echo "=== Start make: 仅编译 dropbear dropbearkey ==="
+make -j$(nproc) PROGRAMS="dropbear dropbearkey" CFLAGS="${EXTRA_CFLAGS} -Os"
+make install PROGRAMS="dropbear dropbearkey" CFLAGS="${EXTRA_CFLAGS} -Os"
+echo "=== Copy binaries ==="
+mkdir -p ../target/arm
+cp ${PREFIX}/sbin/dropbear ../target/arm/
+cp ${PREFIX}/bin/dropbearkey ../target/arm/
+echo "=== Strip ==="
+${HOST}-strip ../target/arm/dropbear
+${HOST}-strip ../target/arm/dropbearkey
+echo "Build done, binaries in target/arm/"
+ls -lh ../target/arm/
