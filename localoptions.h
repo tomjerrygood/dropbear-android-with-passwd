@@ -1,0 +1,7 @@
+/* localoptions.h for android armv7 dropbear 2024.86 */
+#define DROPBEAR_SVR_PASSWORD_AUTH 0
+#define DROPBEAR_SVR_PUBKEY_AUTH 1
+#define DROPBEAR_SFTPSERVER 1
+#define DROPBEAR_USE_SSH_CONFIG 0
+#define DROPBEAR_TCP_FORWARDING 1
+#define DROPBEAR_UNIX_FORWARDING 0

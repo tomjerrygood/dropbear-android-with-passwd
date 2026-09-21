@@ -1,7 +1,7 @@
 name: Build Dropbear Android
 on:
   push:
-    branches: [ '**' ]
+    branches: [ main ]
   workflow_dispatch:
 jobs:
   build:
@@ -33,8 +33,8 @@ jobs:
           ./build-dropbear-android.sh
       - name: UPX compress binaries
         run: |
-          upx --best target/arm/dropbear || true
-          upx --best target/arm/dropbearkey || true
+          upx --best target/arm/dropbear
+          upx --best target/arm/dropbearkey
           ls -lh target/arm/
       - name: Upload binaries
         uses: actions/upload-artifact@v4
