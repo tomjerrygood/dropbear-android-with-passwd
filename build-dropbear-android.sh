@@ -24,6 +24,22 @@ patch -p1 -N --no-backup < ../android-compat.patch
 sed -i 's/#define DROPBEAR_SFTPSERVER 0/#define DROPBEAR_SFTPSERVER 1/' sysoptions.h
 sed -i 's|#define SFTPSERVER_PATH.*|#define SFTPSERVER_PATH "/system/xbin/sftp-server"|' sysoptions.h
 
+# ==========Fix libtomcrypt: add stdio.h include before its own headers=======
+# libtomcrypt C files use fprintf(stderr,...) but don't include stdio.h
+# Prepend #include <stdio.h> to tomlcrypt.h so all libtomcrypt files get it
+LTC_H=src/libtomcrypt/src/headers/tomcrypt.h
+if [ -f "$LTC_H" ]; then
+  sed -i '1s/^/#include <stdio.h>\n/' "$LTC_H"
+  echo "Patched $LTC_H with #include <stdio.h>"
+fi
+
+# Also patch individual libtommath files that may reference stderr
+for f in $(find src/libtommath -name "*.c" 2>/dev/null); do
+  if grep -q "fprintf.*stderr" "$f" && ! grep -q "#include <stdio.h>" "$f"; then
+    sed -i '1s/^/#include <stdio.h>\n/' "$f"
+  fi
+done
+
 cd -
 echo "=== Run configure ==="
 cd dropbear-${VERSION}
