@@ -11,9 +11,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Install host build dependencies
         run: |
-          sudo apt update || true
-          sudo apt install -y --no-upgrade wget tar bzip2 unzip python3 python3-setuptools make patch upx-ucl || true
+          set +e
           # Install libtinfo5 from focal archive for NDK compatibility
+          sudo apt update
+          sudo apt install -y --no-upgrade wget tar bzip2 unzip python3 python3-setuptools make patch upx-ucl
           wget -q http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libtinfo5_6.2-0ubuntu2_amd64.deb
           sudo dpkg -x libtinfo5_6.2-0ubuntu2_amd64.deb /tmp/libtinfo5
           sudo cp /tmp/libtinfo5/lib/x86_64-linux-gnu/libtinfo.so.5 /usr/lib/x86_64-linux-gnu/
