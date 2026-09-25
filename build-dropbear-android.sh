@@ -20,6 +20,7 @@ echo "=== Apply patch ==="
 cd dropbear-${VERSION}
 patch -p1 -N --no-backup < ../android-compat.patch
 
+
 # 修改 default_options.h 中的 SFTPSERVER_PATH
 sed -i 's|#define SFTPSERVER_PATH "/usr/libexec/sftp-server"|#define SFTPSERVER_PATH "/system/xbin/sftp-server"|' default_options.h
 
@@ -30,6 +31,7 @@ sed -i 's|SFTPSERVER_PATH="\"/usr/lib/sftp-server\""|SFTPSERVER_PATH="\"/system/
 sed -i 's/#define DROPBEAR_SFTPSERVER 0/#define DROPBEAR_SFTPSERVER 1/' sysoptions.h
 sed -i 's|#define SFTPSERVER_PATH.*|#define SFTPSERVER_PATH "/system/xbin/sftp-server"|' sysoptions.h
 
+
 cd -
 echo "=== Run configure ==="
 cd dropbear-${VERSION}
@@ -37,20 +39,18 @@ cd dropbear-${VERSION}
   --host=${HOST} \
   --prefix=${PREFIX} \
   --disable-zlib \
-  --disable-static \
-  --enable-shared \
+  --enable-static \
   --disable-shadow \
   --disable-utmp \
   --disable-pty \
   --disable-syslog \
   --disable-lastlog \
   # 删掉 --enable-sftp-server ！！老版本不需要，上面sed已经开启宏
-  CFLAGS="${EXTRA_CFLAGS} -Os" \
-  LDFLAGS="${EXTRA_CFLAGS}"
+  CFLAGS="${EXTRA_CFLAGS} -Os"
 echo "=== make clean 清除旧编译产物，避免残留dbclient目标文件 ==="
 make clean
 echo "=== Start make: 仅编译 dropbear dropbearkey ==="
-make -j$(nproc) PROGRAMS="dropbear dropbearkey" CFLAGS="${EXTRA_CFLAGS} -Os"
+make -j$(nproc) PROGRAMS="dropbear dropbearkey"
 make install PROGRAMS="dropbear dropbearkey"
 echo "=== Copy binaries ==="
 mkdir -p ../target/arm
