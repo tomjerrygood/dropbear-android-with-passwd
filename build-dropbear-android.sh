@@ -39,7 +39,7 @@ cd dropbear-${VERSION}
   --host=${HOST} \
   --prefix=${PREFIX} \
   --disable-zlib \
-  --enable-static \
+  --disable-static \
   --disable-shadow \
   --disable-utmp \
   --disable-pty \
