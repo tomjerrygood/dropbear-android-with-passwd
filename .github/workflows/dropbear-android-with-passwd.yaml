@@ -5,15 +5,12 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install host build dependencies
         run: |
-          sudo apt update
-          # Add focal repo for libtinfo5 on newer Ubuntu runners
-          echo "deb http://archive.ubuntu.com/ubuntu focal main" | sudo tee /etc/apt/sources.list.d/focal.list
           sudo apt update
           sudo apt install -y wget tar bzip2 unzip python3 python3-setuptools make patch upx-ucl libtinfo5
       - name: Download Android NDK r17c direct zip
