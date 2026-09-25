@@ -13,6 +13,11 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y wget tar bzip2 unzip python3 python3-setuptools make patch upx-ucl
+          # Install libtinfo5 from focal archive for NDK compatibility
+          wget -q http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libtinfo5_6.2-0ubuntu2_amd64.deb
+          sudo dpkg -x libtinfo5_6.2-0ubuntu2_amd64.deb /tmp/libtinfo5
+          sudo cp /tmp/libtinfo5/lib/x86_64-linux-gnu/libtinfo.so.5 /usr/lib/x86_64-linux-gnu/
+          sudo cp /tmp/libtinfo5/lib/x86_64-linux-gnu/libtinfo.so.5.9 /usr/lib/x86_64-linux-gnu/
       - name: Download Android NDK r17c direct zip
         run: |
           wget -q https://dl.google.com/android/repository/android-ndk-r17c-linux-x86_64.zip
