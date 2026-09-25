@@ -50,7 +50,7 @@ cd dropbear-${VERSION}
 echo "=== make clean 清除旧编译产物，避免残留dbclient目标文件 ==="
 make clean
 echo "=== Start make: 仅编译 dropbear dropbearkey ==="
-make -j$(nproc) PROGRAMS="dropbear dropbearkey"
+make -j$(nproc) PROGRAMS="dropbear dropbearkey" CFLAGS="${EXTRA_CFLAGS} -Os"
 make install PROGRAMS="dropbear dropbearkey"
 echo "=== Copy binaries ==="
 mkdir -p ../target/arm
