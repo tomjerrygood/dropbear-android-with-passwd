@@ -45,7 +45,8 @@ cd dropbear-${VERSION}
   --disable-syslog \
   --disable-lastlog \
   # 删掉 --enable-sftp-server ！！老版本不需要，上面sed已经开启宏
-  CFLAGS="${EXTRA_CFLAGS} -Os"
+  CFLAGS="${EXTRA_CFLAGS} -Os" \
+  LDFLAGS="${EXTRA_CFLAGS}"
 echo "=== make clean 清除旧编译产物，避免残留dbclient目标文件 ==="
 make clean
 echo "=== Start make: 仅编译 dropbear dropbearkey ==="
