@@ -49,15 +49,17 @@ cd dropbear-${VERSION}
   CFLAGS="${EXTRA_CFLAGS} -Os"
 echo "=== make clean 清除旧编译产物，避免残留dbclient目标文件 ==="
 make clean
-echo "=== Start make: 仅编译 dropbear dropbearkey ==="
-make -j$(nproc) PROGRAMS="dropbear dropbearkey"
-make install PROGRAMS="dropbear dropbearkey"
+echo "=== Start make: 编译 dropbear dropbearkey scp ==="
+make -j$(nproc) PROGRAMS="dropbear dropbearkey scp"
+make install PROGRAMS="dropbear dropbearkey scp"
 echo "=== Copy binaries ==="
 mkdir -p ../target/arm
 cp ${PREFIX}/sbin/dropbear ../target/arm/
 cp ${PREFIX}/bin/dropbearkey ../target/arm/
+cp ${PREFIX}/bin/scp ../target/arm/
 echo "=== Strip ==="
 ${HOST}-strip ../target/arm/dropbear
 ${HOST}-strip ../target/arm/dropbearkey
+${HOST}-strip ../target/arm/scp
 echo "Build done, binaries in target/arm/"
 ls -lh ../target/arm/
