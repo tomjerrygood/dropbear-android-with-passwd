@@ -39,23 +39,30 @@ cd dropbear-${VERSION}
   --host=${HOST} \
   --prefix=${PREFIX} \
   --disable-zlib \
-  --enable-static \
+  --disable-static \
+  --enable-shared \
   --disable-shadow \
   --disable-utmp \
   --disable-pty \
   --disable-syslog \
   --disable-lastlog \
-  # 删掉 --enable-sftp-server ！！老版本不需要，上面sed已经开启宏
   CFLAGS="${EXTRA_CFLAGS} -Os"
 echo "=== make clean 清除旧编译产物，避免残留dbclient目标文件 ==="
 make clean
 echo "=== Start make: 仅编译 dropbear dropbearkey ==="
-make -j$(nproc) PROGRAMS="dropbear dropbearkey"
+make -j$(nproc) PROGRAMS="dropbear dropbearkey" CFLAGS="${EXTRA_CFLAGS} -Os"
 make install PROGRAMS="dropbear dropbearkey"
 echo "=== Copy binaries ==="
 mkdir -p ../target/arm
 cp ${PREFIX}/sbin/dropbear ../target/arm/
 cp ${PREFIX}/bin/dropbearkey ../target/arm/
+# 创建 SCP 包装脚本，将 SCP 请求转发给 SFTP server
+cat > ../target/arm/scp << 'EOF'
+#!/system/bin/sh
+exec /system/xbin/sftp-server
+EOF
+chmod +x ../target/arm/scp
+cp ../target/arm/scp ../target/arm/sftp-server 2>/dev/null || true
 echo "=== Strip ==="
 ${HOST}-strip ../target/arm/dropbear
 ${HOST}-strip ../target/arm/dropbearkey
