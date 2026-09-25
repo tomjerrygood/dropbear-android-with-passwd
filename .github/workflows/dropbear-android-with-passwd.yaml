@@ -30,6 +30,10 @@ jobs:
             --api 21 \
             --install-dir $GITHUB_WORKSPACE/android-arm-toolchain \
             --force
+          # Copy libtinfo5 to toolchain sysroot for cross-compile
+          TOOLCHAIN_DIR="$GITHUB_WORKSPACE/android-arm-toolchain"
+          mkdir -p "$TOOLCHAIN_DIR/sysroot/usr/lib"
+          cp /usr/lib/x86_64-linux-gnu/libtinfo.so.5 "$TOOLCHAIN_DIR/sysroot/usr/lib/"
       - name: Compile dropbear with your build.sh
         env:
           TOOLCHAIN: ${{ github.workspace }}/android-arm-toolchain
