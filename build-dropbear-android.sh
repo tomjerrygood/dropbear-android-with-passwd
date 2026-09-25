@@ -20,9 +20,11 @@ echo "=== Apply patch ==="
 cd dropbear-${VERSION}
 patch -p1 -N --no-backup < ../android-compat.patch
 
-# ==========新增这两行：直接修改sysoptions.h，开启sftp子系统并写死路径==========
+# ==========新增这几行：直接修改sysoptions.h/default_options.h/debian/rules，开启sftp子系统并写死路径==========
 sed -i 's/#define DROPBEAR_SFTPSERVER 0/#define DROPBEAR_SFTPSERVER 1/' sysoptions.h
 sed -i 's|#define SFTPSERVER_PATH.*|#define SFTPSERVER_PATH "/system/xbin/sftp-server"|' sysoptions.h
+sed -i 's|#define SFTPSERVER_PATH.*|#define SFTPSERVER_PATH "/system/xbin/sftp-server"|' default_options.h
+sed -i 's|-DSFTPSERVER_PATH="\\"/usr/lib/sftp-server\\""-|-DSFTPSERVER_PATH="\\"/system/xbin/sftp-server\\""|' debian/rules
 
 cd -
 echo "=== Run configure ==="
@@ -31,7 +33,7 @@ cd dropbear-${VERSION}
   --host=${HOST} \
   --prefix=${PREFIX} \
   --disable-zlib \
-  --enable-static \
+  --disable-static \
   --disable-shadow \
   --disable-utmp \
   --disable-pty \
