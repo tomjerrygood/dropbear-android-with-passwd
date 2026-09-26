@@ -48,10 +48,39 @@ cd dropbear-${VERSION}
 echo "=== Provide fake stderr for bionic ==="
 cat > compat-stderr.c << 'EOF'
 #include <stdio.h>
-static char __buf[1];
-FILE __stderr_file = { .bf_base = __buf, .bf_size = 0, .bf_cnt = 0, .bf_bufend = __buf, ._flags = 0x0200 };
-struct _sFILE_ext __sF[3] = { [1] = { &_stderr_file } };
-__attribute__((weak)) FILE *stderr = &__stderr_file;
+#include <string.h>
+
+/* bionic internal FILE layout */
+typedef struct __sFILE {
+    unsigned char *_p;
+    int _r;
+    int _w;
+    short _flags;
+    short _file;
+    struct __sFILEAUX *aux;
+    unsigned char *_base;
+    int _size;
+    int _bfsize;
+    int _off;
+    void *lock;
+} sFILE_t;
+
+static char __buf_stderr[1];
+static sFILE_t __stderr_buf = {
+    .aux = 0,
+    .base = __buf_stderr,
+    .off = 0,
+    .lock = 0,
+    .flags = 0x0200,
+    .bfsize = 0,
+    .p = __buf_stderr,
+    .r = 0,
+    .w = 0,
+    .size = 0,
+    .file = 2
+};
+
+__attribute__((weak)) FILE *stderr = (FILE *)&__stderr_buf;
 EOF
 
 echo "=== make clean 清除旧编译产物，避免残留dbclient目标文件 ==="
