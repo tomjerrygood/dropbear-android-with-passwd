@@ -8,7 +8,7 @@ HOST=arm-linux-androideabi
 export TOOLCHAIN="$TOOLCHAIN"
 export PATH="$TOOLCHAIN/bin:$PATH"
 # Removed stderr macros - they cause link errors with bionic
-EXTRA_CFLAGS=""
+EXTRA_CFLAGS="-Ustderr"
 echo "=== Download dropbear source ==="
 # Download the latest version of dropbear SSH
 if [ ! -f ./dropbear-$VERSION.tar.bz2 ]; then
