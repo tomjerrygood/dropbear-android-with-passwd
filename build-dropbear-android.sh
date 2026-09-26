@@ -45,52 +45,12 @@ cd dropbear-${VERSION}
   --disable-syslog \
   --disable-lastlog \
   CFLAGS="${EXTRA_CFLAGS} -Os"
-echo "=== Provide fake stderr for bionic ==="
-cat > compat-stderr.c << 'EOF'
-#include <stdio.h>
-#include <string.h>
-
-/* bionic internal FILE layout */
-typedef struct __sFILE {
-    unsigned char *_p;
-    int _r;
-    int _w;
-    short _flags;
-    short _file;
-    struct __sFILEAUX *aux;
-    unsigned char *_base;
-    int _size;
-    int _bfsize;
-    int _off;
-    void *lock;
-} sFILE_t;
-
-static char __buf_stderr[1];
-static sFILE_t __stderr_buf = {
-    .aux = 0,
-    .base = __buf_stderr,
-    .off = 0,
-    .lock = 0,
-    .flags = 0x0200,
-    .bfsize = 0,
-    .p = __buf_stderr,
-    .r = 0,
-    .w = 0,
-    .size = 0,
-    .file = 2
-};
-
-__attribute__((weak)) FILE *stderr = (FILE *)&__stderr_buf;
-EOF
-
 echo "=== make clean 清除旧编译产物，避免残留dbclient目标文件 ==="
 make clean
 echo "=== Build libtomcrypt first (serial to avoid race conditions) ==="
 make libtomcrypt -j1
-echo "=== Compile compat-stderr.o ==="
-${HOST}-gcc -c compat-stderr.c -o compat-stderr.o
 echo "=== Start make: 编译 dropbear dropbearkey scp (serial build) ==="
-make -j1 PROGRAMS="dropbear dropbearkey scp" CFLAGS="${EXTRA_CFLAGS} -Os" LDFLAGS="compat-stderr.o"
+make -j1 PROGRAMS="dropbear dropbearkey scp" CFLAGS="${EXTRA_CFLAGS} -Os"
 make install PROGRAMS="dropbear dropbearkey scp"
 echo "=== Copy binaries ==="
 mkdir -p ../target/arm
