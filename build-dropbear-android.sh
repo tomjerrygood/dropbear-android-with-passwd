@@ -7,7 +7,8 @@ PREFIX=/tmp/dropbear-android
 HOST=arm-linux-androideabi
 export TOOLCHAIN="$TOOLCHAIN"
 export PATH="$TOOLCHAIN/bin:$PATH"
-EXTRA_CFLAGS=""
+# Android bionic libc static stderr fix
+EXTRA_CFLAGS="-Dstderr=__stderrp -Dstdout=__stdoutp -Dstdin=__stdinp"
 echo "=== Download dropbear source ==="
 # Download the latest version of dropbear SSH
 if [ ! -f ./dropbear-$VERSION.tar.bz2 ]; then
@@ -38,28 +39,25 @@ cd dropbear-${VERSION}
   --host=${HOST} \
   --prefix=${PREFIX} \
   --disable-zlib \
-  --disable-static \
+  --enable-static \
   --disable-shadow \
   --disable-utmp \
   --disable-pty \
   --disable-syslog \
   --disable-lastlog \
+  # 删掉 --enable-sftp-server ！！老版本不需要，上面sed已经开启宏
   CFLAGS="${EXTRA_CFLAGS} -Os"
 echo "=== make clean 清除旧编译产物，避免残留dbclient目标文件 ==="
 make clean
-echo "=== Build libtomcrypt first (serial to avoid race conditions) ==="
-make libtomcrypt -j1
-echo "=== Start make: 编译 dropbear dropbearkey scp (serial build) ==="
-make -j1 PROGRAMS="dropbear dropbearkey scp" CFLAGS="${EXTRA_CFLAGS} -Os"
-make install PROGRAMS="dropbear dropbearkey scp"
+echo "=== Start make: 仅编译 dropbear dropbearkey ==="
+make -j$(nproc) PROGRAMS="dropbear dropbearkey"
+make install PROGRAMS="dropbear dropbearkey"
 echo "=== Copy binaries ==="
 mkdir -p ../target/arm
 cp ${PREFIX}/sbin/dropbear ../target/arm/
 cp ${PREFIX}/bin/dropbearkey ../target/arm/
-cp ${PREFIX}/bin/scp ../target/arm/
 echo "=== Strip ==="
 ${HOST}-strip ../target/arm/dropbear
 ${HOST}-strip ../target/arm/dropbearkey
-${HOST}-strip ../target/arm/scp
 echo "Build done, binaries in target/arm/"
 ls -lh ../target/arm/

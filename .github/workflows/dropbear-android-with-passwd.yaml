@@ -5,20 +5,14 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install host build dependencies
         run: |
-          set +e
           sudo apt update
-          sudo apt install -y --no-upgrade wget tar bzip2 unzip python3 python3-setuptools make patch upx-ucl libtinfo5
-          # Ensure libtinfo.so.5 is available in the toolchain sysroot for linking
-          TOOLCHAIN_DIR="$GITHUB_WORKSPACE/android-arm-toolchain"
-          mkdir -p "$TOOLCHAIN_DIR/sysroot/usr/lib"
-          sudo cp /usr/lib/x86_64-linux-gnu/libtinfo.so.5 "$TOOLCHAIN_DIR/sysroot/usr/lib/"
-          sudo cp /usr/lib/x86_64-linux-gnu/libtinfo.so.5.9 "$TOOLCHAIN_DIR/sysroot/usr/lib/"
+          sudo apt install -y wget tar bzip2 unzip python3 python3-setuptools make patch upx-ucl
       - name: Download Android NDK r17c direct zip
         run: |
           wget -q https://dl.google.com/android/repository/android-ndk-r17c-linux-x86_64.zip
@@ -31,10 +25,6 @@ jobs:
             --api 21 \
             --install-dir $GITHUB_WORKSPACE/android-arm-toolchain \
             --force
-          # Copy libtinfo5 to toolchain sysroot for cross-compile
-          TOOLCHAIN_DIR="$GITHUB_WORKSPACE/android-arm-toolchain"
-          mkdir -p "$TOOLCHAIN_DIR/sysroot/usr/lib"
-          cp /usr/lib/x86_64-linux-gnu/libtinfo.so.5 "$TOOLCHAIN_DIR/sysroot/usr/lib/"
       - name: Compile dropbear with your build.sh
         env:
           TOOLCHAIN: ${{ github.workspace }}/android-arm-toolchain
