@@ -48,8 +48,10 @@ cd dropbear-${VERSION}
   CFLAGS="${EXTRA_CFLAGS} -Os"
 echo "=== make clean 清除旧编译产物，避免残留dbclient目标文件 ==="
 make clean
-echo "=== Start make: 编译 dropbear dropbearkey scp ==="
-make -j$(nproc) PROGRAMS="dropbear dropbearkey scp"
+echo "=== Build libtomcrypt first (serial to avoid race conditions) ==="
+make libtomcrypt -j1
+echo "=== Start make: 编译 dropbear dropbearkey scp (serial build) ==="
+make -j1 PROGRAMS="dropbear dropbearkey scp"
 make install PROGRAMS="dropbear dropbearkey scp"
 echo "=== Copy binaries ==="
 mkdir -p ../target/arm
