@@ -7,14 +7,6 @@ PREFIX=/tmp/dropbear-android
 HOST=arm-linux-androideabi
 export TOOLCHAIN="$TOOLCHAIN"
 export PATH="$TOOLCHAIN/bin:$PATH"
-# Provide fake stderr for bionic which doesn't export it as a public symbol
-cat > compat-stderr.c << 'EOF'
-#include <stdio.h>
-static char __buf[1];
-FILE __stderr_file = { .bf_base = __buf, .bf_size = 0, .bf_cnt = 0, .bf_bufend = __buf, ._flags = 0x0200 };
-struct _sFILE_ext __sF[3] = { [1] = { &_stderr_file } };
-__attribute__((weak)) FILE *stderr = &__stderr_file;
-EOF
 EXTRA_CFLAGS=""
 echo "=== Download dropbear source ==="
 # Download the latest version of dropbear SSH
@@ -53,6 +45,15 @@ cd dropbear-${VERSION}
   --disable-syslog \
   --disable-lastlog \
   CFLAGS="${EXTRA_CFLAGS} -Os"
+echo "=== Provide fake stderr for bionic ==="
+cat > compat-stderr.c << 'EOF'
+#include <stdio.h>
+static char __buf[1];
+FILE __stderr_file = { .bf_base = __buf, .bf_size = 0, .bf_cnt = 0, .bf_bufend = __buf, ._flags = 0x0200 };
+struct _sFILE_ext __sF[3] = { [1] = { &_stderr_file } };
+__attribute__((weak)) FILE *stderr = &__stderr_file;
+EOF
+
 echo "=== make clean 清除旧编译产物，避免残留dbclient目标文件 ==="
 make clean
 echo "=== Build libtomcrypt first (serial to avoid race conditions) ==="
