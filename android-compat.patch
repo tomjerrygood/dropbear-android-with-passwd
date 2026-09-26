@@ -1,6 +1,6 @@
-diff -ruN dropbear-2018.76/compat-stderr.c dropbear-2018.76/compat-stderr.c
---- dropbear-2018.76/compat-stderr.c	2018-02-27 07:25:10.000000000 -0700
-+++ dropbear-2018.76/compat-stderr.c	2018-04-12 15:21:49.236912000 -0600
+diff -ruN compat-stderr.c compat-stderr.c
+--- compat-stderr.c	2018-02-27 07:25:10.000000000 -0700
++++ compat-stderr.c	2018-04-12 15:21:49.236912000 -0600
 @@ -16,20 +16,24 @@
  #include "compat-stderr.h"
  #include <stdio.h>
@@ -37,9 +37,9 @@ diff -ruN dropbear-2018.76/compat-stderr.c dropbear-2018.76/compat-stderr.c
 +
 +void __android_log_print(int prio, const char *tag, const char *fmt, ...) {
 +}
-diff -ruN dropbear-2018.76/configure dropbear-2018.76/configure
---- dropbear-2018.76/configure	2018-02-27 07:25:13.000000000 -0700
-+++ dropbear-2018.76/configure	2018-04-12 15:21:49.236912000 -0600
+diff -ruN configure configure
+--- configure	2018-02-27 07:25:13.000000000 -0700
++++ configure	2018-04-12 15:21:49.236912000 -0600
 @@ -4690,11 +4690,11 @@
  fi
  
@@ -53,9 +53,9 @@ diff -ruN dropbear-2018.76/configure dropbear-2018.76/configure
 +#fi
  
  # Check if zlib is needed
-diff -ruN dropbear-2018.76/default_options.h dropbear-2018.76/default_options.h
---- dropbear-2018.76/default_options.h	2018-02-27 07:25:10.000000000 -0700
-+++ dropbear-2018.76/default_options.h	2018-04-13 10:55:29.882055000 -0600
+diff -ruN default_options.h default_options.h
+--- default_options.h	2018-02-27 07:25:10.000000000 -0700
++++ default_options.h	2018-04-13 10:55:29.882055000 -0600
 @@ -13,14 +13,14 @@
  
  IMPORTANT: Some options will require "make clean" after changes */
@@ -75,9 +75,9 @@ diff -ruN dropbear-2018.76/default_options.h dropbear-2018.76/default_options.h
 +#define ECDSA_PRIV_FILENAME "./dropbear_ecdsa_host_key"
  
  /* Set NON_INETD_MODE if you require daemon functionality (ie Dropbear listens
-diff -ruN dropbear-2018.76/runopts.h dropbear-2018.76/runopts.h
---- dropbear-2018.76/runopts.h	2018-02-27 07:25:12.000000000 -0700
-+++ dropbear-2018.76/runopts.h	2018-04-12 16:05:49.864914000 -0600
+diff -ruN runopts.h runopts.h
+--- runopts.h	2018-02-27 07:25:12.000000000 -0700
++++ runopts.h	2018-04-12 16:05:49.864914000 -0600
 @@ -123,6 +123,13 @@
  	buffer * banner;
  	char * pidfile;
@@ -92,9 +92,9 @@ diff -ruN dropbear-2018.76/runopts.h dropbear-2018.76/runopts.h
  	char * forced_command;
  
  } svr_runopts;
-diff -ruN dropbear-2018.76/svr-auth.c dropbear-2018.76/svr-auth.c
---- dropbear-2018.76/svr-auth.c	2018-02-27 07:25:12.000000000 -0700
-+++ dropbear-2018.76/svr-auth.c	2018-04-13 11:19:33.989962000 -0600
+diff -ruN svr-auth.c svr-auth.c
+--- svr-auth.c	2018-02-27 07:25:12.000000000 -0700
++++ svr-auth.c	2018-04-13 11:19:33.989962000 -0600
 @@ -37,19 +37,26 @@
  #include "runopts.h"
  #include "dbrandom.h"
@@ -253,9 +253,9 @@ diff -ruN dropbear-2018.76/svr-auth.c dropbear-2018.76/svr-auth.c
  	/* check the shell is valid. If /etc/shells doesn't exist, getusershell()
  	 * should return some standard shells like "/bin/sh" and "/bin/csh" (this
  	 * is platform-specific) */
-diff -ruN dropbear-2018.76/svr-authpasswd.c dropbear-2018.76/svr-authpasswd.c
---- dropbear-2018.76/svr-authpasswd.c	2018-02-27 07:25:12.000000000 -0700
-+++ dropbear-2018.76/svr-authpasswd.c	2018-04-13 12:21:52.574971000 -0600
+diff -ruN svr-authpasswd.c svr-authpasswd.c
+--- svr-authpasswd.c	2018-02-27 07:25:12.000000000 -0700
++++ svr-authpasswd.c	2018-04-13 12:21:52.574971000 -0600
 @@ -48,22 +48,12 @@
  
  /* Process a password auth request, sending success or failure messages as
@@ -325,9 +325,9 @@ diff -ruN dropbear-2018.76/svr-authpasswd.c dropbear-2018.76/svr-authpasswd.c
 +}
 +
  #endif
-diff -ruN dropbear-2018.76/svr-authpubkey.c dropbear-2018.76/svr-authpubkey.c
---- dropbear-2018.76/svr-authpubkey.c	2018-02-27 07:25:12.000000000 -0700
-+++ dropbear-2018.76/svr-authpubkey.c	2018-04-13 09:56:18.319287000 -0600
+diff -ruN svr-authpubkey.c svr-authpubkey.c
+--- svr-authpubkey.c	2018-02-27 07:25:12.000000000 -0700
++++ svr-authpubkey.c	2018-04-13 09:56:18.319287000 -0600
 @@ -64,6 +64,7 @@
  #include "ssh.h"
  #include "packet.h"
@@ -367,9 +367,9 @@ diff -ruN dropbear-2018.76/svr-authpubkey.c dropbear-2018.76/svr-authpubkey.c
  
  	/* open the file as the authenticating user. */
  	origuid = getuid();
-diff -ruN dropbear-2018.76/svr-chansession.c dropbear-2018.76/svr-chansession.c
---- dropbear-2018.76/svr-chansession.c	2018-02-27 07:25:12.000000000 -0700
-+++ dropbear-2018.76/svr-chansession.c	2018-04-13 09:52:05.154533000 -0600
+diff -ruN svr-chansession.c svr-chansession.c
+--- svr-chansession.c	2018-02-27 07:25:12.000000000 -0700
++++ svr-chansession.c	2018-04-13 09:52:05.154533000 -0600
 @@ -593,11 +593,23 @@
  		dropbear_exit("Out of memory"); /* TODO disconnect */
  	}
@@ -417,9 +417,9 @@ diff -ruN dropbear-2018.76/svr-chansession.c dropbear-2018.76/svr-chansession.c
  	if (chansess->term != NULL) {
  		addnewvar("TERM", chansess->term);
  	}
-diff -ruN dropbear-2018.76/svr-runopts.c dropbear-2018.76/svr-runopts.c
---- dropbear-2018.76/svr-runopts.c	2018-02-27 07:25:12.000000000 -0700
-+++ dropbear-2018.76/svr-runopts.c	2018-04-13 09:48:34.333137000 -0600
+diff -ruN svr-runopts.c svr-runopts.c
+--- svr-runopts.c	2018-02-27 07:25:12.000000000 -0700
++++ svr-runopts.c	2018-04-13 09:48:34.333137000 -0600
 @@ -42,6 +42,12 @@
  static void printhelp(const char * progname) {
  
@@ -510,7 +510,7 @@ diff -ruN dropbear-2018.76/svr-runopts.c dropbear-2018.76/svr-runopts.c
 +				// 	break;
  #if DROPBEAR_SVR_PASSWORD_AUTH || DROPBEAR_SVR_PAM_AUTH
  				case 's':
- 					svr_opts.noauthpass = 1;
+ 					srv_opts.noauthpass = 1;
 @@ -302,6 +335,13 @@
  			}
  		}
@@ -525,9 +525,9 @@ diff -ruN dropbear-2018.76/svr-runopts.c dropbear-2018.76/svr-runopts.c
  		if (nextisport) {
  			addportandaddress(&argv[i][j]);
  			nextisport = 0;
-diff -ruN dropbear-2018.76/sysoptions.h dropbear-2018.76/sysoptions.h
---- dropbear-2018.76/sysoptions.h	2018-02-27 07:25:12.000000000 -0700
-+++ dropbear-2018.76/sysoptions.h	2018-04-12 15:22:33.624601000 -0600
+diff -ruN sysoptions.h sysoptions.h
+--- sysoptions.h	2018-02-27 07:25:12.000000000 -0700
++++ sysoptions.h	2018-04-12 15:22:33.624601000 -0600
 @@ -233,9 +233,9 @@
  #error "DROPBEAR_SVR_PATM_AUTH requires PAM headers. Perhaps ./configure --enable-pam ?"
  #endif
